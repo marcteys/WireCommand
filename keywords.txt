@@ -1,5 +1,5 @@
 #######################################
-# Syntax Coloring Map For TinyWireM
+# Syntax Coloring Map For WireCommand
 #######################################
 
 #######################################
@@ -31,7 +31,7 @@ ReadWire	KEYWORD2
 # Instances (KEYWORD2)
 #######################################
 
-Wire	KEYWORD2
+WireCommand	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
