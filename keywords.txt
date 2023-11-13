@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For TinyWireM
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+sendMessage	KEYWORD2
+setMessageData	KEYWORD2
+receiveEvent	KEYWORD2
+scanAllPorts	KEYWORD2
+ParseIncommingMessage	KEYWORD2
+next	KEYWORD2
+update	KEYWORD2
+request	KEYWORD2
+delay	KEYWORD2
+clearBuffer	KEYWORD2
+addCommand	KEYWORD2
+recieveEvent	KEYWORD2
+requestEvent	KEYWORD2
+ReadSerial	KEYWORD2
+ReadWire	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+Wire	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
