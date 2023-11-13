@@ -16,10 +16,10 @@ void setup() {
   wireCommand.addCommand("send", SendStuff);
 }
 
-
 // this should happened only once
 void SendStuff() {
-  wireCommand.sendMessage(0x10, "sendStuff", 32, 255);
+//  wireCommand.setMessageData(32,255);
+  wireCommand.sendMessage(0x10, "sendSlave", 32);
 }
 
 // this should happened only once

@@ -1,4 +1,19 @@
 
+
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+#include <string.h>
+
+#include<Wire.h>
+
+
+#include "WireCommand.h"
+
+
 WireCommand * WireCommand::_instance = NULL;
 
 WireCommand::WireCommand() {
@@ -18,8 +33,8 @@ void WireCommand::begin(int addr) {
 
   Wire.setClock(1000000);
 
-  Wire.onReceive(_instance->recieveEvent); // Message recevied fro Master to Slave
-  Wire.onRequest(_instance->requestEvent); // Message recevied from Slave to Master
+  Wire.onReceive(WireCommand::_instance->recieveEvent); // Message recevied fro Master to Slave
+  Wire.onRequest(WireCommand::_instance->requestEvent); // Message recevied from Slave to Master
 }
 
 

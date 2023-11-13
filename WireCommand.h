@@ -1,16 +1,27 @@
+
 #ifndef WireCommand_h
 #define WireCommand_h
 
 
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+
+
 #include<Wire.h>
-#define MASTER_ADDR 0
 
 // Commands parser
 #ifndef SERIALCOMMANDBUFFER
 #define SERIALCOMMANDBUFFER 30
+#endif
+
 #ifndef MAXSERIALCOMMANDS
 #define MAXSERIALCOMMANDS  6
 #endif
+
 #define MAXDELIMETER 2
 
 #ifndef MAX_BUFFER_MESSAGES
@@ -69,4 +80,5 @@ class WireCommand {
     int messageData[6];
 
 };
+
 #endif
