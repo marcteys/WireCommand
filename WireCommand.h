@@ -28,6 +28,10 @@
 #define MAX_BUFFER_MESSAGES 3
 #endif
 
+
+#define WIRE_SERIAL_DEBUG 1
+
+
 class WireCommand {
 
   public:
@@ -52,7 +56,7 @@ class WireCommand {
 
     void addCommand(const char *, void(*)());   // Add commands to processing dictionary
 
-    static void recieveEvent();
+    static void recieveEvent(int numBytes);
     static void requestEvent();
     void ReadSerial();
     void ReadWire();

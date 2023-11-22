@@ -5,21 +5,26 @@
 #include <WireCommand.h>
 WireCommand wireCommand;
 
-#define ADDRESS 0x00
+#define MASTER_ADDRESS 0x00
 #define SLAVE_ADDRESS 0x10
 #define OTHER_SLAVE_ADDRESS 0x20
 
 void setup() {
   Serial.begin(115200);
-  wireCommand.begin(ADDRESS);
+  wireCommand.begin(MASTER_ADDRESS);
   wireCommand.addCommand("command", ReceiveCommandStatus);
   wireCommand.addCommand("send", SendStuff);
+  wireCommand.addCommand("scan", ScanAll);
 }
 
 // this should happened only once
 void SendStuff() {
-//  wireCommand.setMessageData(32,255);
-  wireCommand.sendMessage(0x10, "sendSlave", 32);
+  //  wireCommand.setMessageData(32,255);
+  Serial.print("Sending to slave...");
+
+  wireCommand.sendMessage(SLAVE_ADDRESS, "sendSlave", 32);
+  Serial.println(" sent !");
+
 }
 
 // this should happened only once
@@ -43,7 +48,7 @@ void loop() {
 }
 
 void ForceRequest() {
-  wireCommand.request(0x10);
+  wireCommand.request(SLAVE_ADDRESS);
 }
 
 

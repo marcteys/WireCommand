@@ -1,3 +1,4 @@
+#define WIRE_SERIAL_DEBUG 1
 
 #include <WireCommand.h>
 WireCommand wireCommand;
@@ -12,6 +13,7 @@ void setup() {
 
 // this should happened only once
 void ReceiveStuff() {
+  Serial.println("Receinving stuff");
   char *arg;
   arg = wireCommand.next();
   if (arg != NULL)  {

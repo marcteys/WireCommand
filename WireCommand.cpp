@@ -27,11 +27,17 @@ WireCommand::WireCommand() {
 
 void WireCommand::begin(int addr) {
   if (addr == 0) {
-    Wire.begin(addr); // Master
+    Wire.begin(); // Master
   }
   else Wire.begin(addr); // Slave
 
   Wire.setClock(1000000);
+
+  #ifdef WIRE_SERIAL_DEBUG
+      Serial.print("Wire begin at ");
+      Serial.println(addr);
+  #endif
+
 
   Wire.onReceive(WireCommand::_instance->recieveEvent); // Message recevied fro Master to Slave
   Wire.onRequest(WireCommand::_instance->requestEvent); // Message recevied from Slave to Master
@@ -68,7 +74,7 @@ void WireCommand::requestEvent()
 }
 
 
-void WireCommand::recieveEvent() {
+void WireCommand::recieveEvent(int numBytes) {
 
   /*
     int receiveIndex  = 0;
@@ -118,27 +124,24 @@ int WireCommand::sendMessage(byte targetAddr, char * message, int value) {
 
 int WireCommand::sendMessage(byte targetAddr, char * message) {
 
+
   char newMessageOutput[SERIALCOMMANDBUFFER];
   memset(&newMessageOutput[0], 0, sizeof(newMessageOutput));
   int index = 0;
   for (index = 0; message[index] != '\0'; index++) {
     newMessageOutput[index] = message[index];
   }
-
-
   // build message string
   if (messageData[0] > 0) {
     for (int ix = 1; ix <= messageData[0]; ix++) {  // For each parameter
       sprintf(newMessageOutput + strlen(newMessageOutput), "/%d", messageData[ix] );
     }
   }
-
   // todo : vérifier que messageOutputData.c_str() st plus petit que SERIALCOMMANDBUFFER  , sinon elle ne sera pas parsée de l'autre coté
 
 
   int state = 4;
   if (targetAddr == 0) {  // Store to Buffer
-
     bool storeInBuffer = true;
     // Do not store message if already in buffer
     for (int buff = 0; buff < MAX_BUFFER_MESSAGES; buff++ ) {
@@ -171,8 +174,8 @@ int WireCommand::sendMessage(byte targetAddr, char * message) {
   } else {  // SendToSlave
     Wire.beginTransmission(targetAddr);
     Wire.write(newMessageOutput);
-    Wire.requestFrom((uint8_t)targetAddr, (uint8_t)1);
-    state = Wire.endTransmission();
+   // Wire.requestFrom((uint8_t)targetAddr, (uint8_t)1);
+    state = Wire.endTransmission(true);
 
 #ifdef WIRE_SERIAL_DEBUG
     Serial.print("Wire message ");
@@ -203,7 +206,7 @@ void WireCommand::ParseIncommingMessage(char * incommingMessage) {
   boolean matched;
 
 
-#ifdef SERIAL_DEBUG
+#ifdef WIRE_SERIAL_DEBUG
   Serial.print("Received: ");
   Serial.println(incommingMessage);
 #endif
@@ -212,7 +215,7 @@ void WireCommand::ParseIncommingMessage(char * incommingMessage) {
   if (token == NULL) return;
   matched = false;
   for (i = 0; i < numCommand; i++) {
-#ifdef SERIAL_DEBUG
+#ifdef WIRE_SERIAL_DEBUG
     Serial.print("Comparing [");
     Serial.print(token);
     Serial.print("] to [");
@@ -222,7 +225,7 @@ void WireCommand::ParseIncommingMessage(char * incommingMessage) {
     // Compare the found command against the list of known commands for a match
     if (strncmp(token, CommandList[i].command, SERIALCOMMANDBUFFER) == 0)
     {
-#ifdef SERIAL_DEBUG
+#ifdef WIRE_SERIAL_DEBUG
       Serial.print("Matched Command: ");
       Serial.println(token);
 #endif
@@ -242,6 +245,9 @@ void WireCommand::ReadSerial() {
   int receiveIndex  = 0;
   char serialInputString[SERIALCOMMANDBUFFER];
   while (Serial.available()) {
+    #ifdef WIRE_SERIAL_DEBUG
+      Serial.println("New serial char");
+  #endif
     char inChar = Serial.read();
     serialInputString[receiveIndex] = '\0';
     if (inChar != '\r' && inChar != '\n') {
@@ -269,6 +275,7 @@ void WireCommand::ReadWire() {
   
   bool hasNewData = false;
   while (Wire.available()) {
+     
     hasNewData = true;
     char inChar = (char)Wire.read();
     if (inChar != -1 ) {
@@ -310,6 +317,7 @@ char *WireCommand::next()
 void WireCommand::update()
 {
   ReadSerial();
+  ReadWire();
 }
 
 void WireCommand::request(int addr)
@@ -334,7 +342,7 @@ void WireCommand::delay(unsigned int duration) {
 void WireCommand::addCommand(const char *command, void (*function)()) {
 
   if (numCommand < MAXSERIALCOMMANDS - 1) {
-#ifdef SERIAL_DEBUG
+#ifdef WIRE_SERIAL_DEBUG
     Serial.print(numCommand);
     Serial.print("-");
     Serial.print("Adding command for ");
@@ -344,7 +352,7 @@ void WireCommand::addCommand(const char *command, void (*function)()) {
     CommandList[numCommand].function = function;
     numCommand++;
   } else {
-#ifdef SERIAL_DEBUG
+#ifdef WIRE_SERIAL_DEBUG
     Serial.println("Error, too much commands!");
 #endif
   }
@@ -354,7 +362,8 @@ void WireCommand::addCommand(const char *command, void (*function)()) {
 
 
 void WireCommand::scanAllPorts() {
-  byte error, address; int nDevices;
+  byte error, address;
+  int nDevices;
   Serial.println("Scanning...");
   nDevices = 0;
   for (address = 1; address < 127; address++ ) {
@@ -366,7 +375,7 @@ void WireCommand::scanAllPorts() {
       Serial.print(address, HEX); Serial.println();
       nDevices++;
     }
-    else if (error == 4)    {
+    else if (error !=2)    {
       Serial.print("Unknown error at address 0x");
       if (address < 16) Serial.print("0");
       Serial.println(address, HEX);
